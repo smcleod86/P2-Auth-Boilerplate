@@ -3,7 +3,7 @@ const router = express.Router()
 const db = require('../models')
 console.log(db.user)
 // import middleware
-const flash = require('flash')
+const flash = require('connect-flash')
 const passport = require('../config/ppConfig')
 
 // register get route
@@ -50,10 +50,8 @@ router.post('/login', function (req, res, next) {
         // if no user authenticated
         if (!user) {
             req.flash('error', 'Invalid username or password')
-            req.session.save(function() {
-                return res.redirect('/auth/login')
-            })
-        }
+            return res.redirect('/auth/login')
+            }
         if (error) {
             return next(error)
         }
@@ -62,18 +60,11 @@ router.post('/login', function (req, res, next) {
             if (error) next(error)
             req.flash('success', 'You have been validated and logged in.')
             req.session.save(function() {
-                return res.redirect('/')
+                return res.redirect('/profile')
             })
         })
     })(req, res, next)
 })
-
-router.post('/login', passport.authenticate('local', {
-    successRedirect: '/', 
-    failureRedirect: '/auth/login',
-    successFlash: 'Welcome to our app',
-    failureFlash: 'Invalid username or password'
-}))
 
 router.get('/logout', function(req, res) {
     req.logout()
